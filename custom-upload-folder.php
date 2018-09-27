@@ -2,81 +2,125 @@
 /*
 Plugin Name: Custom Upload Folder
 Description: Upload files to custom directory in WP Media Library.
-Version: 0.2
-Author: Notekar
+Version: 0.3
+Author: Motekar
 Author URI: https://motekar.com/
 Text Domain: custom-upload-folder
 */
 
 class CustomUploadFolder
 {
-	public function __construct() {
-		// Set default value.
-		setcookie( 'custom_upload_folder', '' );
+  public function __construct() {
+    // Set default value.
+    setcookie( 'custom_upload_folder', '' );
 
-		// Check if from media uploader.
-		if ( preg_match( '/(async-upload|media-new)\.php/', $_SERVER['REQUEST_URI'] ) ) {
-			// before upload
-			add_filter( 'wp_handle_upload_prefilter', function( $file ) {
-				add_filter( 'upload_dir', ['CustomUploadFolder', 'custom_dir'] );
+    // Check if from media uploader.
+    if ( preg_match( '/(async-upload|media-new)\.php/', $_SERVER['REQUEST_URI'] ) ) {
+      // before upload
+      add_filter( 'wp_handle_upload_prefilter', function( $file ) {
+        add_filter( 'upload_dir', [$this, 'custom_dir'] );
 
-				return $file;
-			} );
+        return $file;
+      } );
 
-			// after
-			add_filter( 'wp_handle_upload', function( $file ) {
-				remove_filter( 'upload_dir', ['CustomUploadFolder', 'custom_dir'] );
+      // after
+      add_filter( 'wp_handle_upload', function( $file ) {
+        remove_filter( 'upload_dir', [$this, 'custom_dir'] );
 
-				return $file;
-			} );
+        return $file;
+      } );
 
-			add_action( 'pre-upload-ui', 'custom_upload_folder_select' );
-			add_action( 'admin_print_scripts', 'custom_upload_folder_script', 99 );
-		}
+      add_action( 'pre-upload-ui', 'custom_upload_folder_select' );
+      add_action( 'admin_print_scripts', 'custom_upload_folder_script', 99 );
+    }
 
-		// Media table
-		add_filter( 'manage_media_columns', function( $columns ) {
-			$columns['folder'] = 'Folder';
-			return $columns;
-		} );
+    // Media table
+    add_filter( 'manage_media_columns', function( $columns ) {
+      $columns['folder'] = 'Folder';
+      return $columns;
+    } );
 
-		add_action( 'manage_media_custom_column', function( $column_name, $post_ID ) {
-			if( $column_name == 'folder' ) {
-				$file = pathinfo( get_post_meta( $post_ID, '_wp_attached_file', true ) );
-				echo $file['dirname'];
-			}
-		}, 10, 2 );
+    add_action( 'manage_media_custom_column', function( $column_name, $post_ID ) {
+      if( $column_name == 'folder' ) {
+        $file = pathinfo( get_post_meta( $post_ID, '_wp_attached_file', true ) );
+        echo $file['dirname'];
+      }
+    }, 10, 2 );
 
-	}
+    add_action( 'admin_init', [$this, 'admin_init'] );
+    add_action( 'admin_menu', [$this, 'admin_menu'] );
+  }
 
-	public function custom_dir( $dirs ) {
-		if (
-			! isset( $_COOKIE['custom_upload_folder'] ) ||
-			  empty( $_COOKIE['custom_upload_folder'] )
-		) return $dirs;
+  public function custom_dir( $dirs ) {
+    if (
+      ! isset( $_COOKIE['custom_upload_folder'] ) ||
+        empty( $_COOKIE['custom_upload_folder'] )
+    ) return $dirs;
 
-		$dir = $_COOKIE['custom_upload_folder'];
+    $dir = $_COOKIE['custom_upload_folder'];
 
-		$dirs['subdir'] = '/' . $dir;
-		$dirs['path'] = $dirs['basedir'] . '/' . $dir;
-		$dirs['url'] = $dirs['baseurl'] . '/' . $dir;
+    $dirs['subdir'] = '/' . $dir;
+    $dirs['path'] = $dirs['basedir'] . '/' . $dir;
+    $dirs['url'] = $dirs['baseurl'] . '/' . $dir;
 
-		return $dirs;
-	}
+    return $dirs;
+  }
+
+  function admin_init() {
+    register_setting(
+      __FILE__,
+      'custom_upload_folders',
+      [
+        'type' => 'string',
+        'default' => "assets\nassets/img\nassets/css\nassets/js",
+      ]
+    );
+  }
+
+  function admin_menu() {
+    add_options_page(
+      __( 'Custom Upload Folder', __FILE__ ),
+      __( 'Custom Upload Folder', __FILE__ ),
+      'manage_options',
+      __FILE__,
+      [$this, 'option_page']
+    );
+  }
+
+  function option_page() { ?>
+    <div class="wrap">
+      <h1><?php _e( 'Custom Upload Folder', __FILE__ ); ?></h1>
+      <form method="post" action="options.php">
+        <?php settings_fields( __FILE__ ); ?>
+        <?php do_settings_sections( __FILE__ ); ?>
+        <table class="form-table">
+          <tbody>
+            <tr>
+              <th scope="row"><label for="custom_upload_folders"><?php _e( 'Custom Upload Folders', __FILE__ ); ?></label></th>
+              <td>
+                <textarea id="custom_upload_folders" name="custom_upload_folders" class="regular-text ltr" rows="7"><?php echo esc_attr( get_option( 'custom_upload_folders' ) ); ?></textarea>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <?php submit_button(); ?>
+      </form>
+    </div>
+  <?php }
 }
 
 new CustomUploadFolder;
 
 // TODO: settings page for manage these options.
 function custom_upload_folder_select() {
+  $folders = explode( "\n", get_option( 'custom_upload_folders' ) );
 ?>
-Select Upload Folder
+<?php _e( 'Select Upload Folder', __FILE__ ); ?>
 <select class="js-custom-upload-folder">
-	<option value="">Choose Folder</option>
-	<option value="assets">assets</option>
-	<option value="assets/img">assets/img</option>
-	<option value="assets/css">assets/css</option>
-	<option value="assets/js">assets/js</option>
+  <option value=""><?php _e( 'Choose Folder', __FILE__ ); ?></option>
+  <?php for ($i=0; $i < sizeof($folders); $i++) {
+    echo '<option value="' . $folders[$i] . '">' . $folders[$i] . '</option>';
+  } ?>
 </select>
 <?php
 }
@@ -86,10 +130,10 @@ function custom_upload_folder_script() {
 ?>
 <script type="text/javascript">
 jQuery(function($) {
-	$('body').on('change', '.js-custom-upload-folder', function() {
-		document.cookie = 'custom_upload_folder=' + $(this).val();
-	});
+  $('body').on('change', '.js-custom-upload-folder', function() {
+    document.cookie = 'custom_upload_folder=' + $(this).val();
+  });
 } );
 </script>
-<?
+<?php
 }

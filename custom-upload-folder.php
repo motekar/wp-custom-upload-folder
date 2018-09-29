@@ -2,7 +2,7 @@
 /*
 Plugin Name: Custom Upload Folder
 Description: Upload files to custom directory in WP Media Library.
-Version: 0.3
+Version: 0.4
 Author: Motekar
 Author URI: https://motekar.com/
 Text Domain: custom-upload-folder
@@ -12,27 +12,12 @@ class CustomUploadFolder
 {
   public function __construct() {
     // Set default value.
-    setcookie( 'custom_upload_folder', '' );
-
-    // Check if from media uploader.
-    if ( preg_match( '/(async-upload|media-new)\.php/', $_SERVER['REQUEST_URI'] ) ) {
-      // before upload
-      add_filter( 'wp_handle_upload_prefilter', function( $file ) {
-        add_filter( 'upload_dir', [$this, 'custom_dir'] );
-
-        return $file;
-      } );
-
-      // after
-      add_filter( 'wp_handle_upload', function( $file ) {
-        remove_filter( 'upload_dir', [$this, 'custom_dir'] );
-
-        return $file;
-      } );
-
-      add_action( 'pre-upload-ui', 'custom_upload_folder_select' );
-      add_action( 'admin_print_scripts', 'custom_upload_folder_script', 99 );
+    if ( empty( $_POST ) ) {
+      setcookie( 'custom_upload_folder', '' );
     }
+
+    add_action( 'pre-upload-ui', 'custom_upload_folder_select' );
+    add_action( 'admin_print_scripts', 'custom_upload_folder_script', 99 );
 
     // Media table
     add_filter( 'manage_media_columns', function( $columns ) {
@@ -49,6 +34,23 @@ class CustomUploadFolder
 
     add_action( 'admin_init', [$this, 'admin_init'] );
     add_action( 'admin_menu', [$this, 'admin_menu'] );
+
+    // Check if from media uploader.
+    if ( preg_match( '/(async-upload|media-new)\.php/', $_SERVER['REQUEST_URI'] ) ) {
+      // before upload
+      add_filter( 'wp_handle_upload_prefilter', function( $file ) {
+        add_filter( 'upload_dir', [$this, 'custom_dir'] );
+
+        return $file;
+      } );
+
+      // after
+      add_filter( 'wp_handle_upload', function( $file ) {
+        remove_filter( 'upload_dir', [$this, 'custom_dir'] );
+
+        return $file;
+      } );
+    }
   }
 
   public function custom_dir( $dirs ) {
@@ -111,15 +113,14 @@ class CustomUploadFolder
 
 new CustomUploadFolder;
 
-// TODO: settings page for manage these options.
 function custom_upload_folder_select() {
   $folders = explode( "\n", get_option( 'custom_upload_folders' ) );
 ?>
 <?php _e( 'Select Upload Folder', __FILE__ ); ?>
 <select class="js-custom-upload-folder">
   <option value=""><?php _e( 'Choose Folder', __FILE__ ); ?></option>
-  <?php for ($i=0; $i < sizeof($folders); $i++) {
-    echo '<option value="' . $folders[$i] . '">' . $folders[$i] . '</option>';
+  <?php foreach ( $folders as $folder ) {
+    echo '<option value="' . $folder . '">' . $folder . '</option>';
   } ?>
 </select>
 <?php

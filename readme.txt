@@ -4,7 +4,7 @@ Donate link: https://motekar.com/
 Tags: media, upload, assets
 Requires at least: 4.6
 Tested up to: 4.9
-Stable tag: 0.4
+Stable tag: 0.5
 Requires PHP: 5.2.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -28,5 +28,5 @@ Upload files to custom directory in WordPress Media Library.
 
 == Changelog ==
 
-= 0.4 =
+= 0.5 =
 * Initial release.

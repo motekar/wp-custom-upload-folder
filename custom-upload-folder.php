@@ -59,11 +59,14 @@ class CustomUploadFolder
 				empty( $_COOKIE['custom_upload_folder'] )
 		) return $dirs;
 
-		$dir = $_COOKIE['custom_upload_folder'];
+		$folders = explode( "\r\n", esc_attr( get_option( 'custom_upload_folders' ) ) );
+		$dir = sanitize_text_field( $_COOKIE['custom_upload_folder'] );
 
-		$dirs['subdir'] = '/' . $dir;
-		$dirs['path'] = $dirs['basedir'] . '/' . $dir;
-		$dirs['url'] = $dirs['baseurl'] . '/' . $dir;
+		if ( in_array( $dir, $folders ) ) {
+			$dirs['subdir'] = '/' . $dir;
+			$dirs['path'] = $dirs['basedir'] . '/' . $dir;
+			$dirs['url'] = $dirs['baseurl'] . '/' . $dir;
+		}
 
 		return $dirs;
 	}
@@ -74,7 +77,7 @@ class CustomUploadFolder
 			'custom_upload_folders',
 			[
 				'type' => 'string',
-				'default' => "assets\nassets/img\nassets/css\nassets/js",
+				'default' => "assets\r\nassets/img\r\nassets/css\r\nassets/js",
 			]
 		);
 	}

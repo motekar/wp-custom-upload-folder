@@ -2,7 +2,7 @@
 /*
 Plugin Name: Custom Upload Folder
 Description: Upload files to custom directory in WP Media Library.
-Version: 0.5
+Version: 0.6
 Author: Motekar
 Author URI: https://motekar.com/
 Text Domain: custom-upload-folder
@@ -117,7 +117,7 @@ class CustomUploadFolder
 new CustomUploadFolder;
 
 function custom_upload_folder_select() {
-	$folders = explode( "\n", get_option( 'custom_upload_folders' ) );
+	$folders = explode( "\n", get_option( 'custom_upload_folders', "assets\r\nassets/img\r\nassets/css\r\nassets/js" ) );
 	?>
 	<?php _e( 'Select Upload Folder', __FILE__ ); ?>
 	<select class="js-custom-upload-folder">

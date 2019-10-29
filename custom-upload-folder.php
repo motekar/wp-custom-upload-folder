@@ -2,7 +2,7 @@
 /*
 Plugin Name: Custom Upload Folder
 Description: Upload files to custom directory in WP Media Library.
-Version: 0.6
+Version: 0.7
 Author: Motekar
 Author URI: https://motekar.com/
 Text Domain: custom-upload-folder
@@ -17,7 +17,6 @@ class CustomUploadFolder
 		}
 
 		add_action( 'pre-upload-ui', 'custom_upload_folder_select' );
-		add_action( 'admin_print_scripts', 'custom_upload_folder_script', 99 );
 
 		// Media table
 		add_filter( 'manage_media_columns', function( $columns ) {
@@ -120,24 +119,11 @@ function custom_upload_folder_select() {
 	$folders = explode( "\n", get_option( 'custom_upload_folders', "assets\r\nassets/img\r\nassets/css\r\nassets/js" ) );
 	?>
 	<?php _e( 'Select Upload Folder', __FILE__ ); ?>
-	<select class="js-custom-upload-folder">
+	<select class="js-custom-upload-folder" onchange="document.cookie = 'custom_upload_folder=' + event.target.value;">
 		<option value=""><?php _e( 'Choose Folder', __FILE__ ); ?></option>
 		<?php foreach ( $folders as $folder ) {
 			echo '<option value="' . $folder . '">' . $folder . '</option>';
 		} ?>
 	</select>
-	<?php
-}
-
-// Send folder name through cookie.
-function custom_upload_folder_script() {
-	?>
-	<script type="text/javascript">
-	jQuery(function($) {
-		$('body').on('change', '.js-custom-upload-folder', function() {
-			document.cookie = 'custom_upload_folder=' + $(this).val();
-		});
-	} );
-	</script>
 	<?php
 }

@@ -2,7 +2,7 @@
 /*
 Plugin Name: Custom Upload Folder
 Description: Upload files to custom directory in WP Media Library.
-Version: 0.7
+Version: 1.0
 Author: Motekar
 Author URI: https://motekar.com/
 Text Domain: custom-upload-folder
@@ -10,12 +10,9 @@ Text Domain: custom-upload-folder
 
 class CustomUploadFolder
 {
-	public function __construct() {
-		// Set default value.
-		if ( empty( $_POST ) ) {
-			setcookie( 'custom_upload_folder', '' );
-		}
+	private $default_folders = "assets\r\nassets/img\r\nassets/css\r\nassets/js";
 
+	public function __construct() {
 		add_action( 'pre-upload-ui', [$this, 'custom_upload_folder_select'] );
 
 		// Media table
@@ -38,33 +35,33 @@ class CustomUploadFolder
 		if ( preg_match( '/(async-upload|media-new)\.php/', $_SERVER['REQUEST_URI'] ) ) {
 			// before upload
 			add_filter( 'wp_handle_upload_prefilter', function( $file ) {
-				add_filter( 'upload_dir', [$this, 'custom_dir'] );
+				add_filter( 'upload_dir', [$this, 'upload_dir'] );
 
 				return $file;
 			} );
 
 			// after
 			add_filter( 'wp_handle_upload', function( $file ) {
-				remove_filter( 'upload_dir', [$this, 'custom_dir'] );
+				remove_filter( 'upload_dir', [$this, 'upload_dir'] );
 
 				return $file;
 			} );
 		}
 	}
 
-	public function custom_dir( $dirs ) {
-		if (
-			! isset( $_COOKIE['custom_upload_folder'] ) ||
-				empty( $_COOKIE['custom_upload_folder'] )
-		) return $dirs;
+	public function upload_dir( $dirs ) {
+		$folder_in_cookie = filter_input( INPUT_COOKIE, 'custom_upload_folder' );
+
+		if ( empty( $folder_in_cookie ) ) {
+			return $dirs;
+		}
 
 		$folders = explode( "\r\n", esc_attr( get_option( 'custom_upload_folders' ) ) );
-		$dir = sanitize_text_field( $_COOKIE['custom_upload_folder'] );
 
-		if ( in_array( $dir, $folders ) ) {
-			$dirs['subdir'] = '/' . $dir;
-			$dirs['path'] = $dirs['basedir'] . '/' . $dir;
-			$dirs['url'] = $dirs['baseurl'] . '/' . $dir;
+		if ( in_array( $folder_in_cookie, $folders ) ) {
+			$dirs['subdir'] = '/' . $folder_in_cookie;
+			$dirs['path'] = $dirs['basedir'] . '/' . $folder_in_cookie;
+			$dirs['url'] = $dirs['baseurl'] . '/' . $folder_in_cookie;
 		}
 
 		return $dirs;
@@ -76,7 +73,7 @@ class CustomUploadFolder
 			'custom_upload_folders',
 			[
 				'type' => 'string',
-				'default' => "assets\r\nassets/img\r\nassets/css\r\nassets/js",
+				'default' => $this->default_folders,
 			]
 		);
 	}
@@ -113,14 +110,21 @@ class CustomUploadFolder
 	<?php }
 
 	function custom_upload_folder_select() {
-		$folders = explode( "\n", get_option( 'custom_upload_folders', "assets\r\nassets/img\r\nassets/css\r\nassets/js" ) ); ?>
+		$folders  = explode( "\r\n", get_option( 'custom_upload_folders', $this->default_folders ) ); ?>
 		<?php _e( 'Select Upload Folder', __FILE__ ); ?>
-		<select class="js-custom-upload-folder" onchange="document.cookie = 'custom_upload_folder=' + event.target.value;">
-			<option value=""><?php _e( 'Choose Folder', __FILE__ ); ?></option>
+		<select class="js-custom-upload-folder" onchange="document.cookie='custom_upload_folder=' + event.target.value + ';path=<?php echo COOKIEPATH; ?>'">
+			<option value=""><?php _e( 'Default', __FILE__ ); ?></option>
 			<?php foreach ( $folders as $folder ) {
-				echo '<option value="' . $folder . '">' . $folder . '</option>';
+				$folder = trim( $folder );
+				echo "<option value=\"{$folder}\">{$folder}</option>";
 			} ?>
 		</select>
+		<script>
+		jQuery( function() {
+			var match = document.cookie.match( new RegExp( '(^| )custom_upload_folder=([^;]+)' ) );
+			jQuery( '.js-custom-upload-folder' ).val( match ? match[2] : '' );
+		} );
+		</script>
 	<?php }
 }
 

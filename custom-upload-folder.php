@@ -50,7 +50,7 @@ class CustomUploadFolder
 	}
 
 	public function upload_dir( $dirs ) {
-		$folder_in_cookie = filter_input( INPUT_COOKIE, 'custom_upload_folder' );
+		$folder_in_cookie = sanitize_text_field( filter_input( INPUT_COOKIE, 'custom_upload_folder' ) );
 
 		if ( empty( $folder_in_cookie ) ) {
 			return $dirs;

@@ -29,7 +29,6 @@ class CustomUploadFolder
 		}, 10, 2 );
 
 		add_action( 'admin_init', [$this, 'admin_init'] );
-		add_action( 'admin_menu', [$this, 'admin_menu'] );
 
 		// Check if from media uploader.
 		if ( preg_match( '/(async-upload|media-new)\.php/', $_SERVER['REQUEST_URI'] ) ) {
@@ -69,45 +68,35 @@ class CustomUploadFolder
 
 	function admin_init() {
 		register_setting(
-			__FILE__,
+			'media',
 			'custom_upload_folders',
 			[
 				'type' => 'string',
 				'default' => $this->default_folders,
 			]
 		);
-	}
 
-	function admin_menu() {
-		add_options_page(
+		add_settings_section(
+			'custom_upload_folders_section',
 			__( 'Custom Upload Folder', __FILE__ ),
-			__( 'Custom Upload Folder', __FILE__ ),
-			'manage_options',
-			__FILE__,
-			[$this, 'option_page']
+			'',
+			'media'
+		);
+
+		add_settings_field(
+			'folders',
+			__( 'Custom Upload Folders', __FILE__ ),
+			array( $this, 'folders_input_callback' ),
+			'media',
+			'custom_upload_folders_section'
 		);
 	}
-
-	function option_page() { ?>
-		<div class="wrap">
-			<h1><?php _e( 'Custom Upload Folder', __FILE__ ); ?></h1>
-			<form method="post" action="options.php">
-				<?php settings_fields( __FILE__ ); ?>
-				<?php do_settings_sections( __FILE__ ); ?>
-				<table class="form-table">
-					<tbody>
-						<tr>
-							<th scope="row"><label for="custom_upload_folders"><?php _e( 'Custom Upload Folders', __FILE__ ); ?></label></th>
-							<td>
-								<textarea id="custom_upload_folders" name="custom_upload_folders" class="regular-text ltr" rows="7"><?php echo esc_attr( get_option( 'custom_upload_folders' ) ); ?></textarea>
-							</td>
-						</tr>
-					</tbody>
-				</table>
-				<?php submit_button(); ?>
-			</form>
-		</div>
-	<?php }
+	
+	function folders_input_callback() {
+		?>
+		<textarea id="custom_upload_folders" name="custom_upload_folders" class="regular-text ltr" rows="7"><?php echo esc_attr( get_option( 'custom_upload_folders' ) ); ?></textarea>
+		<?php
+	}
 
 	function custom_upload_folder_select() {
 		$folders  = explode( "\r\n", get_option( 'custom_upload_folders', $this->default_folders ) ); ?>

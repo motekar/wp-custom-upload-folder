@@ -28,6 +28,11 @@ Upload files to custom directory in WordPress Media Library.
 
 == Changelog ==
 
+= 1.0 =
+* Add pre-select dropdown option.
+* Fix cookie.
+* Simplify option.
+
 = 0.7 =
 * Remove jQuery dependency.
 

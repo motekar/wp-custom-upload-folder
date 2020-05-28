@@ -120,10 +120,8 @@ class CustomUploadFolder
 			} ?>
 		</select>
 		<script>
-		jQuery( function() {
-			var match = document.cookie.match( new RegExp( '(^| )custom_upload_folder=([^;]+)' ) );
-			jQuery( '.js-custom-upload-folder' ).val( match ? match[2] : '' );
-		} );
+			var match  = document.cookie.match( new RegExp( '(^| )custom_upload_folder=([^;]+)' ) );
+			document.getElementsByClassName('js-custom-upload-folder')[0].value = match ? match[2] : '';
 		</script>
 	<?php }
 }

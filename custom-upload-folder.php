@@ -108,10 +108,11 @@ class CustomUploadFolder
 				echo "<option value=\"{$folder}\">{$folder}</option>";
 			} ?>
 		</select>
-		<script>
-			var match  = document.cookie.match( new RegExp( '(^| )custom_upload_folder=([^;]+)' ) );
-			document.getElementsByClassName('js-custom-upload-folder')[0].value = match ? match[2] : '';
-		</script>
+		<img onload="
+			     var match = document.cookie.match( new RegExp( '(^| )custom_upload_folder=([^;]+)' ) );
+			     document.getElementsByClassName('js-custom-upload-folder')[0].value = match ? match[2] : '';
+			     " 
+		     src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs=" />
 	<?php }
 }
 

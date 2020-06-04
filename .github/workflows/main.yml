@@ -2,7 +2,7 @@ name: Create release and deploy to WordPress.org
 on:
   push:
     tags:
-    - 'v*'
+    - "*"
 jobs:
   release:
     name: Create release and deploy to WordPress.org

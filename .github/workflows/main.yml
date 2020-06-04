@@ -1,0 +1,40 @@
+name: Create release and deploy to WordPress.org
+on:
+  push:
+    tags:
+    - 'v*'
+jobs:
+  release:
+    name: Create release and deploy to WordPress.org
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@master
+    - name: Create release
+      id: create_release
+      uses: actions/create-release@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false
+    - name: WordPress plugin deploy
+      id: deploy
+      uses: 10up/action-wordpress-plugin-deploy@master
+      with:
+        generate-zip: true
+      env:
+        SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+        SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+        SLUG: custom-upload-folder
+    - name: Upload release asset
+      uses: actions/upload-release-asset@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ${{ github.workspace }}/${{ github.event.repository.name }}.zip
+        asset_name: custom-upload-folder.${{ github.ref }}.zip
+        asset_content_type: application/zip

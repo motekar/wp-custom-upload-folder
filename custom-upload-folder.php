@@ -2,7 +2,7 @@
 /*
 Plugin Name: Custom Upload Folder
 Description: Upload files to custom directory in WP Media Library.
-Version: 1.1
+Version: 1.1.1
 Author: Motekar
 Author URI: https://motekar.com/
 Text Domain: custom-upload-folder
@@ -91,7 +91,7 @@ class CustomUploadFolder
 			'custom_upload_folders_section'
 		);
 	}
-	
+
 	function folders_input_callback() {
 		?>
 		<textarea id="custom_upload_folders" name="custom_upload_folders" class="regular-text ltr" rows="7"><?php echo esc_attr( get_option( 'custom_upload_folders' ) ); ?></textarea>
@@ -111,7 +111,7 @@ class CustomUploadFolder
 		<img onload="
 			     var match = document.cookie.match( new RegExp( '(^| )custom_upload_folder=([^;]+)' ) );
 			     document.getElementsByClassName('js-custom-upload-folder')[0].value = match ? match[2] : '';
-			     " 
+			     "
 		     src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs=" />
 	<?php }
 }

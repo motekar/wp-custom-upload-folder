@@ -1,10 +1,10 @@
 === Custom Upload Folder ===
 Contributors: motekar
 Donate link: https://motekar.com/
-Tags: media, upload, assets
+Tags: media, upload, assets, classicpress
 Requires at least: 4.6
 Tested up to: 6.0.2
-Stable tag: 1.1
+Stable tag: 1.1.1
 Requires PHP: 5.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -27,6 +27,9 @@ Upload files to custom directory in WordPress Media Library.
 2. Settings page.
 
 == Changelog ==
+
+= 1.1.1 =
+* ClassicPress support.
 
 = 1.1 =
 * WordPress 6.x support.

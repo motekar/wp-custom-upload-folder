@@ -16,6 +16,9 @@ Upload files to custom directory in WordPress Media Library.
 
 ## Changelog
 
+### 1.1.1
+* ClassicPress support.
+
 ### 1.1
 * WordPress 6.x support.
 

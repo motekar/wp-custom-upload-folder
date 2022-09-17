@@ -2,7 +2,7 @@
 /*
 Plugin Name: Custom Upload Folder
 Description: Upload files to custom directory in WP Media Library.
-Version: 1.1.1
+Version: 1.1.2
 Author: Motekar
 Author URI: https://motekar.com/
 Text Domain: custom-upload-folder

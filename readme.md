@@ -14,7 +14,12 @@ Upload files to custom directory in WordPress Media Library.
 
 ![Settings page](/.wordpress-org/screenshot-2.png)
 
+![Post edit page](/.wordpress-org/screenshot-3.png)
+
 ## Changelog
+
+### 1.1.2
+* Add screenshot.
 
 ### 1.1.1
 * ClassicPress support.

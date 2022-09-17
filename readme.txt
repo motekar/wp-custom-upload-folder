@@ -25,6 +25,7 @@ Upload files to custom directory in WordPress Media Library.
 
 1. Media upload page.
 2. Settings page.
+2. Post edit page.
 
 == Changelog ==
 
